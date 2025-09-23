@@ -34,7 +34,7 @@ app.use("*", cors(), async (c, next) => {
   return next();
 });
 
-const routes = app.basePath("/api").route("/auth", authRouter)
+const routes = app.basePath("/api").route("/auth", authRouter);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -65,7 +65,6 @@ app.onError((err, c) => {
     500,
   );
 });
-
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
