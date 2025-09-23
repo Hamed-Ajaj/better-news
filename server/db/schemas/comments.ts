@@ -39,4 +39,3 @@ export const commentRelations = relations(commentsTable, ({ one, many }) => ({
   }),
   commentUpvotes: many(commentUpvotesTable, { relationName: "commentUpvotes" }),
 }));
-

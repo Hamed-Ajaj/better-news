@@ -1,9 +1,9 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-import { postsTable } from "./posts";
-import { userTable } from "./auth";
 import { relations } from "drizzle-orm";
-import { commentsTable } from "./comments";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
+import { userTable } from "./auth";
+import { commentsTable } from "./comments";
+import { postsTable } from "./posts";
 
 export const postUpvotesTable = pgTable("post_upvotes", {
   id: serial("id").primaryKey(),
@@ -12,7 +12,7 @@ export const postUpvotesTable = pgTable("post_upvotes", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-})
+});
 
 export const postUpvoteRelations = relations(postUpvotesTable, ({ one }) => ({
   post: one(postsTable, {
@@ -34,7 +34,7 @@ export const commentUpvotesTable = pgTable("comment_upvotes", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-})
+});
 
 export const commentUpvoteRelations = relations(
   commentUpvotesTable,
