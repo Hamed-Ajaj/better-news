@@ -5,9 +5,14 @@ meta {
 }
 
 post {
-  url: 
-  body: none
+  url: http://localhost:3000/api/auth/login
+  body: multipartForm
   auth: inherit
+}
+
+body:multipart-form {
+  username: hamed
+  password: hamedhamed
 }
 
 settings {
