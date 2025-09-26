@@ -7,6 +7,7 @@ import type { ErrorResponse } from "@/shared/types";
 import type { Context } from "./context";
 import { lucia } from "./lucia";
 import { authRouter } from "./routes/auth";
+import { commentsRouter } from "./routes/comments";
 import { postsRouter } from "./routes/posts";
 
 const app = new Hono<Context>();
@@ -38,7 +39,8 @@ app.use("*", cors(), async (c, next) => {
 const routes = app
   .basePath("/api")
   .route("/auth", authRouter)
-  .route("/posts", postsRouter);
+  .route("/posts", postsRouter)
+  .route("/comments", commentsRouter);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
