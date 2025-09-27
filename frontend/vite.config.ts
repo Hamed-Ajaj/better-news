@@ -7,14 +7,7 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    TanStackRouterVite({
-      target: "react",
-      autoCodeSplitting: true,
-    }),
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [TanStackRouterVite({}), react(), tailwindcss()],
   resolve: {
     alias: {
       "@/shared": path.resolve(__dirname, "../shared"),
@@ -24,7 +17,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http//localhost:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
       },
     },

@@ -9,6 +9,7 @@ import { lucia } from "@/lucia";
 import { loggedIn } from "@/middleware/loggedIn";
 import { zValidator } from "@hono/zod-validator";
 import { generateId } from "lucia";
+import postgres from "postgres";
 
 import { loginSchema, type SuccessResponse } from "@/shared/types";
 
@@ -38,7 +39,10 @@ export const authRouter = new Hono<Context>()
       );
     } catch (error) {
       if (error instanceof postgres.PostgresError && error.code === "23505") {
-        throw new HTTPException(409, { message: "Username already exists" });
+        throw new HTTPException(409, {
+          message: "Username already exists",
+          cause: { form: true },
+        });
       }
       throw new HTTPException(500, { message: "Failed to Create User" });
     }

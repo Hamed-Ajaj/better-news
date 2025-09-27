@@ -2,6 +2,7 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
+import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/header";
 
 export const Route = createRootRoute({
@@ -20,6 +21,7 @@ function RootComponent() {
           <p className="text-sm text-muted-foreground">BetterNews &copy;</p>
         </footer>
       </div>
+      <Toaster />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools />
     </>

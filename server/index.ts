@@ -1,8 +1,9 @@
 import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
-import type { ErrorResponse } from "@/shared/types";
+import { type ErrorResponse } from "@/shared/types";
 
 import type { Context } from "./context";
 import { lucia } from "./lucia";
@@ -10,7 +11,11 @@ import { authRouter } from "./routes/auth";
 import { commentsRouter } from "./routes/comments";
 import { postsRouter } from "./routes/posts";
 
-const app = new Hono<Context>();
+const app = new Hono<Context>()
+  .basePath("/api")
+  .route("/auth", authRouter)
+  .route("/posts", postsRouter)
+  .route("/comments", commentsRouter);
 
 app.use("*", cors(), async (c, next) => {
   const sessionId = lucia.readSessionCookie(c.req.header("Cookie") ?? "");
@@ -36,11 +41,10 @@ app.use("*", cors(), async (c, next) => {
   return next();
 });
 
-const routes = app
-  .basePath("/api")
-  .route("/auth", authRouter)
-  .route("/posts", postsRouter)
-  .route("/comments", commentsRouter);
+// const routes = app
+//   .route("/auth", authRouter)
+//   .route("/posts", postsRouter)
+//   .route("/comments", commentsRouter);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -72,9 +76,14 @@ app.onError((err, c) => {
   );
 });
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
-});
+app.get("*", serveStatic({ root: "./frontend/dist" }));
+app.get("*", serveStatic({ path: "./frontend/dist/index.html" }));
 
-export default app;
-export type ApiRoutes = typeof routes;
+export default {
+  port: process.env["PORT"] || 3000,
+  hostname: "0.0.0.0",
+  fetch: app.fetch,
+};
+
+console.log("Server Running on port", process.env["PORT"] || 3000);
+export type ApiRoutes = typeof app;
