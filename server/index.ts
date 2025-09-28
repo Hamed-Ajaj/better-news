@@ -11,11 +11,7 @@ import { authRouter } from "./routes/auth";
 import { commentsRouter } from "./routes/comments";
 import { postsRouter } from "./routes/posts";
 
-const app = new Hono<Context>()
-  .basePath("/api")
-  .route("/auth", authRouter)
-  .route("/posts", postsRouter)
-  .route("/comments", commentsRouter);
+const app = new Hono<Context>();
 
 app.use("*", cors(), async (c, next) => {
   const sessionId = lucia.readSessionCookie(c.req.header("Cookie") ?? "");
@@ -41,10 +37,12 @@ app.use("*", cors(), async (c, next) => {
   return next();
 });
 
-// const routes = app
-//   .route("/auth", authRouter)
-//   .route("/posts", postsRouter)
-//   .route("/comments", commentsRouter);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const routes = app
+  .basePath("/api")
+  .route("/auth", authRouter)
+  .route("/posts", postsRouter)
+  .route("/comments", commentsRouter);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -86,4 +84,4 @@ export default {
 };
 
 console.log("Server Running on port", process.env["PORT"] || 3000);
-export type ApiRoutes = typeof app;
+export type ApiRoutes = typeof routes;

@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { loginSchema } from "@/shared/types";
-import { postSignup, userQueryOptions } from "@/lib/api";
+import { postLogin, userQueryOptions } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,7 +30,7 @@ const signupSearchSchema = z.object({
   redirect: fallback(z.string(), "/").default("/"),
 });
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute("/login")({
   component: RouteComponent,
   validateSearch: zodSearchValidator(signupSearchSchema),
   beforeLoad: async ({ context, search }) => {
@@ -55,7 +55,7 @@ function RouteComponent() {
       onChange: loginSchema,
     },
     onSubmit: async ({ value }) => {
-      const res = await postSignup(value.username, value.password);
+      const res = await postLogin(value.username, value.password);
       if (res.success) {
         await queryClient.invalidateQueries({ queryKey: ["user"] });
         router.invalidate();
@@ -63,7 +63,7 @@ function RouteComponent() {
         return null;
       } else {
         if (!res.isFormError) {
-          toast.error("Signup failed", { description: res.error });
+          toast.error("Login failed", { description: res.error });
         }
         form.setErrorMap({
           onSubmit: res.isFormError ? res.error : "Unexpected error",
@@ -82,9 +82,9 @@ function RouteComponent() {
           }}
         >
           <CardHeader>
-            <CardTitle className="text-center text-2xl">Signup</CardTitle>
+            <CardTitle className="text-center text-2xl">Login</CardTitle>
             <CardDescription>
-              Enter your details below to create an account.
+              Enter your details below to Login.
             </CardDescription>
           </CardHeader>
           <CardContent className="mt-2">
@@ -140,15 +140,15 @@ function RouteComponent() {
                     disabled={!canSubmit}
                     className="w-full"
                   >
-                    {isSubmitting ? "..." : "Signup"}
+                    {isSubmitting ? "..." : "Login"}
                   </Button>
                 )}
               />
             </div>
             <div className="mt-4 text-sm">
-              Already have an account?{" "}
-              <Link to="/login" className="underline">
-                Login
+              Don&apos;t have an account?{" "}
+              <Link to="/signup" className="underline">
+                Signup
               </Link>
             </div>
           </CardContent>

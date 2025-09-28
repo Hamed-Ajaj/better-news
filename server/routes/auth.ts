@@ -16,18 +16,19 @@ import { loginSchema, type SuccessResponse } from "@/shared/types";
 export const authRouter = new Hono<Context>()
   .post("/signup", zValidator("form", loginSchema), async (c) => {
     const { username, password } = c.req.valid("form");
-    const password_hash = await Bun.password.hash(password);
+    const passwordHash = await Bun.password.hash(password);
     const userId = generateId(15);
 
     try {
       await db.insert(userTable).values({
         id: userId,
         username,
-        password_hash,
+        password_hash: passwordHash,
       });
 
       const session = await lucia.createSession(userId, { username });
       const sessionCookie = lucia.createSessionCookie(session.id).serialize();
+
       c.header("Set-Cookie", sessionCookie, { append: true });
 
       return c.json<SuccessResponse>(
@@ -40,11 +41,11 @@ export const authRouter = new Hono<Context>()
     } catch (error) {
       if (error instanceof postgres.PostgresError && error.code === "23505") {
         throw new HTTPException(409, {
-          message: "Username already exists",
+          message: "Username already used",
           cause: { form: true },
         });
       }
-      throw new HTTPException(500, { message: "Failed to Create User" });
+      throw new HTTPException(500, { message: "Failed to create user" });
     }
   })
   .post("/login", zValidator("form", loginSchema), async (c) => {
@@ -57,26 +58,32 @@ export const authRouter = new Hono<Context>()
       .limit(1);
 
     if (!existingUser) {
-      throw new HTTPException(401, { message: "Invalid username or password" });
+      throw new HTTPException(401, {
+        message: "Incorrect username",
+        cause: { form: true },
+      });
     }
 
-    const validPassword = Bun.password.verify(
+    const validPassword = await Bun.password.verify(
       password,
       existingUser.password_hash,
     );
-
     if (!validPassword) {
-      throw new HTTPException(401, { message: "Invalid username or password" });
+      throw new HTTPException(401, {
+        message: "Incorrect password",
+        cause: { form: true },
+      });
     }
 
     const session = await lucia.createSession(existingUser.id, { username });
     const sessionCookie = lucia.createSessionCookie(session.id).serialize();
+
     c.header("Set-Cookie", sessionCookie, { append: true });
 
     return c.json<SuccessResponse>(
       {
         success: true,
-        message: "Logged in successfully",
+        message: "Logged in",
       },
       200,
     );
@@ -95,7 +102,7 @@ export const authRouter = new Hono<Context>()
     const user = c.get("user")!;
     return c.json<SuccessResponse<{ username: string }>>({
       success: true,
-      message: "User fetched successfully",
+      message: "User fetched",
       data: { username: user.username },
     });
   });

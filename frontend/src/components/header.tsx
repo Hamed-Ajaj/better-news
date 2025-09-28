@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { MenuIcon } from "lucide-react";
 
-import { useQueryOption } from "@/lib/api";
+import { useQueryOption, userQueryOptions } from "@/lib/api";
 
 import { Button } from "./ui/button";
 import {
@@ -17,7 +17,8 @@ import {
 } from "./ui/sheet";
 
 const Header = () => {
-  const { data: user } = useQuery(useQueryOption());
+  const { data: user } = useQuery(userQueryOptions());
+  console.log(user);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <header className="sticky top-0 z-50 w-full border-border/40 bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/90">
@@ -56,9 +57,13 @@ const Header = () => {
             </Button>
           )}
         </div>
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="secondary" size="icon" className="md:hidden">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="md:hidden cursor-pointer"
+            >
               <MenuIcon className="size-6" />
             </Button>
           </SheetTrigger>
@@ -70,9 +75,15 @@ const Header = () => {
               </SheetDescription>
             </SheetHeader>
             <nav className="flex flex-col gap-y-4">
-              <Link className="link-hover">new</Link>
-              <Link className="link-hover">top</Link>
-              <Link className="link-hover">submit</Link>
+              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+                new
+              </Link>
+              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+                top
+              </Link>
+              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+                submit
+              </Link>
               {user ? (
                 <>
                   <span>user: {user}</span>
