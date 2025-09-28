@@ -40,8 +40,8 @@ app.use("*", cors(), async (c, next) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const routes = app
   .basePath("/api")
-  .route("/auth", authRouter)
   .route("/posts", postsRouter)
+  .route("/auth", authRouter)
   .route("/comments", commentsRouter);
 
 app.onError((err, c) => {

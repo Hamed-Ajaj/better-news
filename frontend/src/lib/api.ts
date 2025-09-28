@@ -1,7 +1,13 @@
 import { hc } from "hono/client";
 import { queryOptions } from "@tanstack/react-query";
 
-import type { ApiRoutes, ErrorResponse, SuccessResponse } from "@/shared/types";
+import type {
+  ApiRoutes,
+  ErrorResponse,
+  Order,
+  SortBy,
+  SuccessResponse,
+} from "@/shared/types";
 
 // @ts-expect-error - ignoring complex type inference issue
 const client = hc<ApiRoutes>("/", {
@@ -73,3 +79,33 @@ export const userQueryOptions = () =>
     queryFn: getUser,
     staleTime: Infinity,
   });
+
+export const getPosts = async ({
+  pageParam = 1,
+  pagination,
+}: {
+  pageParam: number;
+  pagination: {
+    sortBy?: SortBy;
+    order?: Order;
+    author?: string;
+    site?: string;
+  };
+}) => {
+  const res = await client.posts.$get({
+    query: {
+      page: pageParam.toString(),
+      sortBy: pagination.sortBy,
+      order: pagination.order,
+      author: pagination.author,
+      site: pagination.site,
+    },
+  });
+
+  if (!res.ok) {
+    const data = (await res.json) as ErrorResponse;
+    throw new Error(data.error);
+  }
+  const data = await res.json();
+  return data;
+};

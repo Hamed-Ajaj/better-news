@@ -38,13 +38,16 @@ export const createPostSchema = insertPostSchema
   );
 
 export const sortBySchema = z.enum(["points", "recent"]);
-export const ordercSchema = z.enum(["asc", "desc"]);
+export const orderSchema = z.enum(["asc", "desc"]);
+
+export type SortBy = z.infer<typeof sortBySchema>;
+export type Order = z.infer<typeof orderSchema>;
 
 export const paginationSchema = z.object({
   limit: z.coerce.number().default(10),
   page: z.coerce.number().default(1),
   sortBy: sortBySchema.default("recent"),
-  order: ordercSchema.default("desc"),
+  order: orderSchema.default("desc"),
   author: z.string().optional(),
   site: z.string().optional(),
 });
