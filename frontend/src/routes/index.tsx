@@ -7,12 +7,14 @@ import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 
 import z from "zod";
 
-import { orderSchema, sortBySchema } from "@/shared/types";
+import { Post } from "@/shared/types";
 import { getPosts } from "@/lib/api";
+import PostCard from "@/components/post-card";
+import SortBar from "@/components/sort-bar";
 
 const homeSearchSchema = z.object({
-  sortBy: fallback(sortBySchema, "points").default("recent"),
-  order: fallback(orderSchema, "desc").default("desc"),
+  sortBy: fallback(z.enum(["points", "recent"]), "points").default("recent"),
+  order: fallback(z.enum(["desc", "asc"]), "desc").default("desc"),
   author: z.optional(fallback(z.string(), "")),
   site: z.optional(fallback(z.string(), "")),
 });
@@ -59,8 +61,12 @@ function HomeComponent() {
     );
   console.log(data, isFetchingNextPage);
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
+    <div className="p-4 mx-auto max-w-3xl">
+      <h1 className="text-2xl font-bold mb-6 text-foreground">Submissions</h1>
+      <SortBar sortBy={sortBy} order={order} />
+      {data?.pages.map((page) =>
+        page.data.map((post: Post) => <PostCard key={post.id} post={post} />),
+      )}
     </div>
   );
 }

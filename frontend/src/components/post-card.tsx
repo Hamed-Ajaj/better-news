@@ -1,0 +1,81 @@
+import { Link } from "@tanstack/react-router";
+
+import { ChevronUpIcon } from "lucide-react";
+
+import { Post } from "@/shared/types";
+import { cn, relativeTime } from "@/lib/utils";
+
+import { badgeVariants } from "./ui/badge";
+import { Card, CardContent, CardTitle } from "./ui/card";
+
+const PostCard = ({ post }: { post: Post }) => {
+  console.log(post);
+  return (
+    <Card className="flex flex-row items-start justify-start pt-3">
+      <button
+        className={cn(
+          "ml-3 flex flex-col items-center justify-center text-muted-foreground hover:text-primary",
+          post.isUpvoted ? "text-primary" : "",
+        )}
+      >
+        <ChevronUpIcon size={20} />
+        <span className="text-xs font-medium">{post.points}</span>
+      </button>
+      <div className="flex grow flex-col justify-between">
+        <div className="flex items-start p-3 py-0">
+          <div className="flex grow flex-wrap items-center gap-x-2 pb-1">
+            <CardTitle className="text-xl font-medium">
+              {post.url ? (
+                <a
+                  href={post.url}
+                  className="text-foreground hover:text-primary hover:underline"
+                >
+                  {post.title}
+                </a>
+              ) : (
+                <Link
+                  to="/"
+                  className="text-foreground hover:text-primary hover:underline"
+                >
+                  {post.title}
+                </Link>
+              )}
+              {post.url ? (
+                <Link
+                  className={cn(
+                    badgeVariants({ variant: "secondary" }),
+                    "text-xs font-normal cursor-pointer transition-colors hover:bg-primary/80 hover:underline",
+                  )}
+                  to={post.url}
+                >
+                  {new URL(post.url).hostname}
+                </Link>
+              ) : null}
+            </CardTitle>
+          </div>
+        </div>
+        <CardContent className="p-3 pt-0">
+          {post.content && (
+            <p className="mb-2 text-foreground text-sm">{post.content}</p>
+          )}
+          <div className="flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
+            <span>
+              By{" "}
+              <Link
+                className="hover:underline"
+                to="/"
+                search={{ author: post.author.id }}
+              >
+                {post.author.username}
+              </Link>
+            </span>
+            <span>&middot;</span>
+            <span>{relativeTime(post.createdAt)}</span>
+          </div>
+        </CardContent>
+      </div>
+    </Card>
+  );
+};
+
+export default PostCard;
