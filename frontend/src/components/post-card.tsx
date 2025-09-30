@@ -8,11 +8,20 @@ import { cn, relativeTime } from "@/lib/utils";
 import { badgeVariants } from "./ui/badge";
 import { Card, CardContent, CardTitle } from "./ui/card";
 
-const PostCard = ({ post }: { post: Post }) => {
+const PostCard = ({
+  post,
+  onUpvote,
+}: {
+  post: Post;
+  onUpvote?: (id: number) => void;
+}) => {
   console.log(post);
   return (
     <Card className="flex flex-row items-start justify-start pt-3">
       <button
+        onClick={() => {
+          onUpvote?.(post.id);
+        }}
         className={cn(
           "ml-3 flex flex-col items-center justify-center text-muted-foreground hover:text-primary",
           post.isUpvoted ? "text-primary" : "",
@@ -40,18 +49,18 @@ const PostCard = ({ post }: { post: Post }) => {
                   {post.title}
                 </Link>
               )}
-              {post.url ? (
-                <Link
-                  className={cn(
-                    badgeVariants({ variant: "secondary" }),
-                    "text-xs font-normal cursor-pointer transition-colors hover:bg-primary/80 hover:underline",
-                  )}
-                  to={post.url}
-                >
-                  {new URL(post.url).hostname}
-                </Link>
-              ) : null}
             </CardTitle>
+            {post.url ? (
+              <Link
+                className={cn(
+                  badgeVariants({ variant: "secondary" }),
+                  "text-xs font-normal cursor-pointer transition-colors hover:bg-primary/80 hover:underline",
+                )}
+                to={post.url}
+              >
+                {new URL(post.url).hostname}
+              </Link>
+            ) : null}
           </div>
         </div>
         <CardContent className="p-3 pt-0">
@@ -71,6 +80,10 @@ const PostCard = ({ post }: { post: Post }) => {
             </span>
             <span>&middot;</span>
             <span>{relativeTime(post.createdAt)}</span>
+            <span>&middot;</span>
+            <Link to="/" className="hover:underline">
+              {post.commentCount} comments
+            </Link>
           </div>
         </CardContent>
       </div>

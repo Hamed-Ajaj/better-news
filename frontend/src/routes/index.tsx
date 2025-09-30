@@ -9,6 +9,8 @@ import z from "zod";
 
 import { Post } from "@/shared/types";
 import { getPosts } from "@/lib/api";
+import { useUpvotePost } from "@/lib/api-hooks";
+import { Button } from "@/components/ui/button";
 import PostCard from "@/components/post-card";
 import SortBar from "@/components/sort-bar";
 
@@ -59,14 +61,34 @@ function HomeComponent() {
     useSuspenseInfiniteQuery(
       postsInfiniteQueryOptions({ sortBy, order, author, site }),
     );
-  console.log(data, isFetchingNextPage);
+  const upvoteMutation = useUpvotePost();
   return (
     <div className="p-4 mx-auto max-w-3xl">
       <h1 className="text-2xl font-bold mb-6 text-foreground">Submissions</h1>
       <SortBar sortBy={sortBy} order={order} />
-      {data?.pages.map((page) =>
-        page.data.map((post: Post) => <PostCard key={post.id} post={post} />),
-      )}
+      <div className="space-y-4">
+        {data?.pages.map((page) =>
+          page.data.map((post: Post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onUpvote={() => upvoteMutation.mutate(post.id.toString())}
+            />
+          )),
+        )}
+      </div>
+      <div className="mt-6">
+        <Button
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage
+            ? "Loading more..."
+            : hasNextPage
+              ? "Load More"
+              : "Nothing More"}
+        </Button>
+      </div>
     </div>
   );
 }
