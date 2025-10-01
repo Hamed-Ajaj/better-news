@@ -170,3 +170,32 @@ export const getPost = async (id: number) => {
   const data = (await res.json()) as ErrorResponse;
   throw new Error(data.error);
 };
+
+export const getComments = async (
+  id: number,
+  page: number = 1,
+  limit: number = 10,
+  pagination: {
+    sortBy: SortBy;
+    order: Order;
+  },
+) => {
+  const res = await client.posts[":id"].comments.$get({
+    param: { id: id.toString() },
+    query: {
+      page: page.toString(),
+      limit: limit.toString(),
+      includeChildren: "true",
+      sortBy: pagination.sortBy,
+      order: pagination.order,
+    },
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    return data;
+  } else {
+    const data = (await res.json()) as ErrorResponse;
+    throw new Error(data.error);
+  }
+};
