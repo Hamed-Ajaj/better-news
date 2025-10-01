@@ -151,3 +151,22 @@ export const postSubmit = async (
     };
   }
 };
+
+export const getPost = async (id: number) => {
+  const res = await client.posts[":id"].$get({
+    param: {
+      id: id.toString(),
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    return data;
+  } else {
+    if (res.status === "404") {
+      throw notFound();
+    }
+  }
+
+  const data = (await res.json()) as ErrorResponse;
+  throw new Error(data.error);
+};
