@@ -18,7 +18,6 @@ import {
 
 const Header = () => {
   const { data: user } = useQuery(userQueryOptions());
-  console.log(user);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <header className="sticky top-0 z-50 w-full border-border/40 bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/90">
@@ -30,7 +29,9 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-4">
             <Link className="link-hover">new</Link>
             <Link className="link-hover">top</Link>
-            <Link className="link-hover">submit</Link>
+            <Link to="/submit" className="link-hover">
+              submit
+            </Link>
           </nav>
         </div>
         <div className="hidden items-center space-x-4 md:flex">

@@ -1,4 +1,4 @@
-import z, { coerce } from "zod";
+import z, { coerce, literal } from "zod";
 
 import { insertCommentSchema } from "../server/db/schemas/comments";
 import { insertPostSchema } from "../server/db/schemas/posts";
@@ -26,16 +26,20 @@ export const loginSchema = z.object({
   password: z.string().min(6).max(255),
 });
 
-export const createPostSchema = insertPostSchema
-  .pick({
-    title: true,
-    url: true,
-    content: true,
+export const createPostSchema = z
+  .object({
+    title: z.string().min(5, "Title must be more than 5 chars").max(100),
+    url: z.string().optional().or(literal("")),
+    content: z
+      .string()
+      .min(5, "Content must be more than 5 chars")
+      .max(2000)
+      .optional(),
   })
-  .refine(
-    (data) => data.url || data.content,
-    "Either url or content is required",
-  );
+  .refine((data) => data.url || data.content, {
+    message: "Either URL or Content must be provided",
+    path: ["url", "content"],
+  });
 
 export const sortBySchema = z.enum(["points", "recent"]);
 export const orderSchema = z.enum(["asc", "desc"]);
