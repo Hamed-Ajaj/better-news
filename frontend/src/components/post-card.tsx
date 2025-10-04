@@ -31,8 +31,8 @@ const PostCard = ({
         <span className="text-xs font-medium">{post.points}</span>
       </button>
       <div className="flex grow flex-col justify-between">
-        <div className="flex items-start p-3 py-0">
-          <div className="flex grow flex-wrap items-center gap-x-2 pb-1">
+        <div className="flex items-start px-3 py-0">
+          <div className="flex grow flex-wrap items-center gap-x-2 ">
             <CardTitle className="text-xl font-medium">
               {post.url ? (
                 <a
@@ -64,7 +64,7 @@ const PostCard = ({
             ) : null}
           </div>
         </div>
-        <CardContent className="p-3 pt-0">
+        <CardContent className="px-3 ">
           {post.content && (
             <p className="mb-2 text-foreground text-sm">{post.content}</p>
           )}

@@ -1,12 +1,21 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useSuspenseInfiniteQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 
-import z from "zod";
+import { z } from "zod";
 
-import { getPost } from "@/lib/api";
+import { getComments, getPost } from "@/lib/api";
 import { useUpvotePost } from "@/lib/api-hooks";
+import { Card, CardContent } from "@/components/ui/card";
+import CommentCard from "@/components/comment-card";
 import PostCard from "@/components/post-card";
+import SortBar from "@/components/sort-bar";
 
 const postSearchSchema = z.object({
   id: fallback(z.number(), 0).default(0),
@@ -23,6 +32,29 @@ const postQueryOptions = (id: number) =>
     throwOnError: true,
   });
 
+const commentsInfiniteQueryOptions = ({
+  id,
+  sortBy,
+  order,
+}: z.infer<typeof postSearchSchema>) =>
+  infiniteQueryOptions({
+    queryKey: ["comments", "post", id, sortBy, order],
+    queryFn: ({ pageParam }) =>
+      getComments(id, pageParam, 10, {
+        sortBy,
+        order,
+      }),
+    initialPageParam: 1,
+    staleTime: Infinity,
+    retry: false,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.pagination.totalPages <= lastPageParam) {
+        return undefined;
+      }
+      return lastPageParam + 1;
+    },
+  });
+
 export const Route = createFileRoute("/post")({
   component: RouteComponent,
   validateSearch: zodSearchValidator(postSearchSchema),
@@ -31,6 +63,15 @@ export const Route = createFileRoute("/post")({
 function RouteComponent() {
   const { id, sortBy, order } = Route.useSearch();
   const { data } = useSuspenseQuery(postQueryOptions(id));
+  const {
+    data: comments,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery(
+    commentsInfiniteQueryOptions({ id, sortBy, order }),
+  );
+  const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const upvotePost = useUpvotePost();
   return (
     <div className="mx-auto max-w-3xl">
@@ -40,6 +81,29 @@ function RouteComponent() {
           onUpvote={() => upvotePost.mutate(id.toString())}
         />
       )}
+      <div className="mb-4 mt-8">
+        <h2 className="mb-2 text-lg font-semibold text-foreground">Comments</h2>
+        {comments && comments.pages[0].data.length > 0 && (
+          <SortBar sortBy={sortBy} order={order} />
+        )}
+        <Card>
+          <CardContent className="">
+            {comments.pages.map((page) =>
+              page.data.map((comment, index) => (
+                <CommentCard
+                  key={comment.id}
+                  comment={comment}
+                  depth={0}
+                  activeReplyId={activeReplyId}
+                  setActiveReplyId={setActiveReplyId}
+                  isLatest={index === page.data.length - 1}
+                  toggleUpvote={() => console.log("upvoted")}
+                />
+              )),
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
