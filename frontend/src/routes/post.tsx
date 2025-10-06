@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 
+import { ChevronDownIcon } from "lucide-react";
 import { z } from "zod";
 
 import { getComments, getPost } from "@/lib/api";
@@ -100,6 +101,26 @@ function RouteComponent() {
                   toggleUpvote={() => console.log("upvoted")}
                 />
               )),
+            )}
+            {hasNextPage && (
+              <div className="mt-2">
+                <button
+                  className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    fetchNextPage();
+                  }}
+                  disabled={!hasNextPage || isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? (
+                    <span>Loading...</span>
+                  ) : (
+                    <>
+                      <ChevronDownIcon size={12} />
+                      <span>More comments</span>
+                    </>
+                  )}
+                </button>
+              </div>
             )}
           </CardContent>
         </Card>

@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 
 import {
+  ChevronDownIcon,
   ChevronUpIcon,
   MessageSquareIcon,
   MinusIcon,
@@ -9,11 +14,12 @@ import {
 } from "lucide-react";
 
 import { Comment } from "@/shared/types";
-import { userQueryOptions } from "@/lib/api";
+import { getCommentComments, userQueryOptions } from "@/lib/api";
 import { cn, relativeTime } from "@/lib/utils";
 
 import CommentForm from "./comment-form";
 import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 
 type CommentCardProps = {
   comment: Comment;
@@ -32,8 +38,43 @@ const CommentCard = ({
   toggleUpvote,
 }: CommentCardProps) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   const { data: user } = useQuery(userQueryOptions());
-  const [isReplying, setIsReplying] = useState<boolean>(false);
+  const {
+    data: comments,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery({
+    queryKey: ["comments", "comment", comment.id],
+    queryFn: ({ pageParam }) => getCommentComments(comment.id, pageParam),
+    initialPageParam: 1,
+    staleTime: Infinity,
+    initialData: {
+      pageParams: [1],
+      pages: [
+        {
+          success: true,
+          message: "comments Fetched",
+          data: comment.childComments ?? [],
+          pagination: {
+            page: 1,
+            totalPages: Math.ceil(comment.commentCount / 2),
+          },
+        },
+      ],
+    },
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.pagination.totalPage <= lastPageParam) {
+        return undefined;
+      }
+
+      return lastPageParam + 1;
+    },
+  });
+  const isReplying = activeReplyId === comment.id;
+  const loadFirstPage =
+    comments?.pages[0].data?.length === 0 && comment.commentCount > 0;
 
   const isUpvoted = comment.commentUpvotes.length > 0;
   return (
@@ -61,23 +102,72 @@ const CommentCard = ({
             className="text-muted-foreground hover:text-foreground"
             onClick={() => setIsCollapsed((prev) => !prev)}
           >
-            {isCollapsed ? <PlusIcon size={14} /> : <MinusIcon size={14} />}
+            {isCollapsed ? <MinusIcon size={14} /> : <PlusIcon size={14} />}
           </button>
         </div>
         {!isCollapsed && (
-          <p className="mb-2 text-sm text-foreground">not collapsed</p>
+          <>
+            <p className="mb-2 text-sm text-foreground">{comment.content}</p>
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+              {user && (
+                <button
+                  className="flex items-center space-x-1 hover:text-foreground"
+                  onClick={() =>
+                    setActiveReplyId(isReplying ? null : comment.id)
+                  }
+                >
+                  <MessageSquareIcon size={12} />
+                  <span>reply</span>
+                </button>
+              )}
+            </div>
+            {isReplying && <div className="mt-2">tes</div>}
+          </>
         )}
-        {user && (
-          <button
-            className="flex items-center space-x-1 hover:text-foreground"
-            onClick={() => setActiveReplyId(isReplying ? null : comment.id)}
-          >
-            <MessageSquareIcon size={12} />
-            <span>reply</span>
-          </button>
-        )}
-        {isReplying && <div className="mt-2">comment form</div>}
       </div>
+      {!isCollapsed &&
+        comments &&
+        comments.pages.map((page, index) => {
+          const isLastPage = index === comments.pages.length - 1;
+          return page.data.map((reply, index) => (
+            <CommentCard
+              key={reply.id}
+              comment={reply}
+              depth={depth + 1}
+              activeReplyId={activeReplyId}
+              setActiveReplyId={setActiveReplyId}
+              isLatest={isLastPage && index === page.data.length - 1}
+              toggleUpvote={toggleUpvote}
+            />
+          ));
+        })}
+      {!isCollapsed && (hasNextPage || loadFirstPage) && (
+        <div className="mt-2">
+          <button
+            className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              if (loadFirstPage) {
+                queryClient.invalidateQueries({
+                  queryKey: ["comments", "comment", comment.id],
+                });
+              } else {
+                fetchNextPage();
+              }
+            }}
+            disabled={!(hasNextPage || loadFirstPage) || isFetchingNextPage}
+          >
+            {isFetchingNextPage ? (
+              <span>Loading...</span>
+            ) : (
+              <>
+                <ChevronDownIcon size={12} />
+                <span>More replies</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
+      {!isLatest && <Separator className="my-2" />}
     </div>
   );
 };

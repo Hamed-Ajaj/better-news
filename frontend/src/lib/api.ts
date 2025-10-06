@@ -199,3 +199,27 @@ export const getComments = async (
     throw new Error(data.error);
   }
 };
+
+export const getCommentComments = async (
+  id: number,
+  page: number = 1,
+  limit: number = 2,
+) => {
+  const res = await client.comments[":id"].comments.$get({
+    param: {
+      id: id.toString(),
+    },
+    query: {
+      page: page.toString(),
+      limit: limit.toString(),
+    },
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    return data;
+  } else {
+    const data = (await res.json()) as ErrorResponse;
+    throw new Error(data.error);
+  }
+};
