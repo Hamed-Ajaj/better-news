@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   infiniteQueryOptions,
   queryOptions,
+  useQuery,
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
@@ -11,10 +12,11 @@ import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 import { ChevronDownIcon } from "lucide-react";
 import { z } from "zod";
 
-import { getComments, getPost } from "@/lib/api";
+import { getComments, getPost, userQueryOptions } from "@/lib/api";
 import { useUpvoteComment, useUpvotePost } from "@/lib/api-hooks";
 import { Card, CardContent } from "@/components/ui/card";
 import CommentCard from "@/components/comment-card";
+import CommentForm from "@/components/comment-form";
 import PostCard from "@/components/post-card";
 import SortBar from "@/components/sort-bar";
 
@@ -72,6 +74,7 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(
     commentsInfiniteQueryOptions({ id, sortBy, order }),
   );
+  const { data: user } = useQuery(userQueryOptions());
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const upvotePost = useUpvotePost();
   const upvoteComment = useUpvoteComment();
@@ -85,6 +88,13 @@ function RouteComponent() {
       )}
       <div className="mb-4 mt-8">
         <h2 className="mb-2 text-lg font-semibold text-foreground">Comments</h2>
+        {user && (
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <CommentForm id={id} />
+            </CardContent>
+          </Card>
+        )}
         {comments && comments.pages[0].data.length > 0 && (
           <SortBar sortBy={sortBy} order={order} />
         )}

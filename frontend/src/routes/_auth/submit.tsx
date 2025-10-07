@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { zodValidator } from "@tanstack/zod-form-adapter";
 
 import { toast } from "sonner";
 import z from "zod";
