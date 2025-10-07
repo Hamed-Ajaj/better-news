@@ -15,10 +15,10 @@ import {
 
 import { Comment } from "@/shared/types";
 import { getCommentComments, userQueryOptions } from "@/lib/api";
+import { useUpvoteComment } from "@/lib/api-hooks";
 import { cn, relativeTime } from "@/lib/utils";
 
 import CommentForm from "./comment-form";
-import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 
 type CommentCardProps = {
@@ -27,7 +27,7 @@ type CommentCardProps = {
   activeReplyId: number | null;
   setActiveReplyId: React.Dispatch<React.SetStateAction<number | null>>;
   isLatest: boolean;
-  toggleUpvote: () => void;
+  toggleUpvote: ReturnType<typeof useUpvoteComment>["mutate"];
 };
 const CommentCard = ({
   comment,
@@ -87,6 +87,13 @@ const CommentCard = ({
               "flex items-center space-x-1 hover:text-primary",
               isUpvoted ? "text-primary" : "text-muted-foreground",
             )}
+            onClick={() =>
+              toggleUpvote({
+                id: comment.id.toString(),
+                parentCommentId: comment.parentCommentId,
+                postId: comment.postId,
+              })
+            }
           >
             <ChevronUpIcon size={14} />
             <span className="font-medium">{comment.points}</span>

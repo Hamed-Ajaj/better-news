@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: 
-  body: none
+  url: http://localhost:3000/api/comments/6
+  body: multipartForm
   auth: inherit
+}
+
+body:multipart-form {
+  content: comment
 }
 
 settings {

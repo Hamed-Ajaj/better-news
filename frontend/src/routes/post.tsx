@@ -12,7 +12,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { z } from "zod";
 
 import { getComments, getPost } from "@/lib/api";
-import { useUpvotePost } from "@/lib/api-hooks";
+import { useUpvoteComment, useUpvotePost } from "@/lib/api-hooks";
 import { Card, CardContent } from "@/components/ui/card";
 import CommentCard from "@/components/comment-card";
 import PostCard from "@/components/post-card";
@@ -74,6 +74,7 @@ function RouteComponent() {
   );
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const upvotePost = useUpvotePost();
+  const upvoteComment = useUpvoteComment();
   return (
     <div className="mx-auto max-w-3xl">
       {data && (
@@ -98,7 +99,7 @@ function RouteComponent() {
                   activeReplyId={activeReplyId}
                   setActiveReplyId={setActiveReplyId}
                   isLatest={index === page.data.length - 1}
-                  toggleUpvote={() => console.log("upvoted")}
+                  toggleUpvote={upvoteComment.mutate}
                 />
               )),
             )}
