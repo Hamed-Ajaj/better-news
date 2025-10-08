@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { ChevronUpIcon } from "lucide-react";
 
 import { Post } from "@/shared/types";
+import { userQueryOptions } from "@/lib/api";
 import { cn, relativeTime } from "@/lib/utils";
 
 import { badgeVariants } from "./ui/badge";
@@ -15,7 +17,7 @@ const PostCard = ({
   post: Post;
   onUpvote?: (id: number) => void;
 }) => {
-  console.log(post);
+  const { data: user } = useQuery(userQueryOptions());
   return (
     <Card className="flex flex-row items-start justify-start pt-3">
       <button
@@ -26,6 +28,7 @@ const PostCard = ({
           "ml-3 flex flex-col items-center justify-center text-muted-foreground hover:text-primary",
           post.isUpvoted ? "text-primary" : "",
         )}
+        disabled={!user}
       >
         <ChevronUpIcon size={20} />
         <span className="text-xs font-medium">{post.points}</span>

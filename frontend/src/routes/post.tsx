@@ -61,6 +61,15 @@ const commentsInfiniteQueryOptions = ({
 export const Route = createFileRoute("/post")({
   component: RouteComponent,
   validateSearch: zodSearchValidator(postSearchSchema),
+  loaderDeps: ({ search: { id, sortBy, order } }) => ({ id, sortBy, order }),
+  loader: async ({ context, deps: { id, sortBy, order } }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(postQueryOptions(id)),
+      context.queryClient.ensureInfiniteQueryData(
+        commentsInfiniteQueryOptions({ id, sortBy, order }),
+      ),
+    ]);
+  },
 });
 
 function RouteComponent() {

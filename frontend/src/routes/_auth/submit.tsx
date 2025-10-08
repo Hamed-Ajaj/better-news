@@ -8,7 +8,6 @@ import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "sonner";
-import z from "zod";
 
 import { createPostSchema } from "@/shared/types";
 import { postSubmit } from "@/lib/api";
@@ -27,12 +26,6 @@ import { FieldInfo } from "@/components/field-info";
 
 export const Route = createFileRoute("/_auth/submit")({
   component: RouteComponent,
-});
-
-const schema = z.object({
-  title: z.string().min(6),
-  content: z.string().min(10),
-  url: z.string().optional(),
 });
 
 function RouteComponent() {

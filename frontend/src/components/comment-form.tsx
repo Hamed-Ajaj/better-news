@@ -3,7 +3,6 @@ import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
 
-import { createCommentSchema } from "@/shared/types";
 import { useCreateComment } from "@/lib/api-hooks";
 
 import { FieldInfo } from "./field-info";

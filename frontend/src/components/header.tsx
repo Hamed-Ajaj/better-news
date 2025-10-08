@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { MenuIcon } from "lucide-react";
 
-import { useQueryOption, userQueryOptions } from "@/lib/api";
+import { userQueryOptions } from "@/lib/api";
 
 import { Button } from "./ui/button";
 import {
@@ -27,8 +27,20 @@ const Header = () => {
             BetterNews
           </Link>
           <nav className="hidden md:flex items-center space-x-4">
-            <Link className="link-hover">new</Link>
-            <Link className="link-hover">top</Link>
+            <Link
+              to="/"
+              search={{ sortBy: "recent", order: "desc" }}
+              className="link-hover"
+            >
+              new
+            </Link>
+            <Link
+              to="/"
+              search={{ sortBy: "points", order: "desc" }}
+              className="link-hover"
+            >
+              top
+            </Link>
             <Link to="/submit" className="link-hover">
               submit
             </Link>
@@ -76,13 +88,27 @@ const Header = () => {
               </SheetDescription>
             </SheetHeader>
             <nav className="flex flex-col gap-y-4">
-              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+              <Link
+                to="/"
+                search={{ sortBy: "recent", order: "desc" }}
+                className="link-hover"
+                onClick={() => setIsOpen(false)}
+              >
                 new
               </Link>
-              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+              <Link
+                to="/"
+                search={{ sortBy: "points", order: "desc" }}
+                className="link-hover"
+                onClick={() => setIsOpen(false)}
+              >
                 top
               </Link>
-              <Link className="link-hover" onClick={() => setIsOpen(false)}>
+              <Link
+                className="link-hover"
+                to="/submit"
+                onClick={() => setIsOpen(false)}
+              >
                 submit
               </Link>
               {user ? (

@@ -1,4 +1,3 @@
-import { fixupPluginRules } from "@eslint/compat";
 import js from "@eslint/js";
 import eslintPrettierConfig from "eslint-config-prettier";
 import drizzlePlugin from "eslint-plugin-drizzle";

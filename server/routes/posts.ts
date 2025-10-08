@@ -1,15 +1,6 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import {
-  and,
-  asc,
-  countDistinct,
-  desc,
-  eq,
-  exists,
-  isNull,
-  sql,
-} from "drizzle-orm";
+import { and, asc, countDistinct, desc, eq, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/adapter";
 import type { Context } from "@/context";

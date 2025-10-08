@@ -113,6 +113,7 @@ function RouteComponent() {
                     <Label htmlFor={field.name}>Password</Label>
                     <Input
                       id={field.name}
+                      type="password"
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}

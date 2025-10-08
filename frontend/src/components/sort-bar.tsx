@@ -1,22 +1,35 @@
-import { Order, SortBy } from "@/shared/types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { useNavigate } from "@tanstack/react-router";
-import { Button } from "./ui/button";
+
 import { ArrowUpIcon } from "lucide-react";
+
+import { Order, SortBy } from "@/shared/types";
 import { cn } from "@/lib/utils";
-const SortBar = ({ sortBy, order }: { sortBy: SortBy, order: Order }) => {
-  const navigate = useNavigate()
+
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+const SortBar = ({ sortBy, order }: { sortBy: SortBy; order: Order }) => {
+  const navigate = useNavigate();
   return (
     <div className="mb-4 flex items-center justify-between">
-      <Select value={sortBy} onValueChange={
-        (sortBy: SortBy) => navigate({
-          to: ".",
-          search: (prev) => ({
-            ...prev,
-            sortBy,
+      <Select
+        value={sortBy}
+        onValueChange={(sortBy: SortBy) =>
+          navigate({
+            to: ".",
+            search: (prev) => ({
+              ...prev,
+              sortBy,
+            }),
           })
-        })
-      }>
+        }
+      >
         <SelectTrigger>
           <SelectValue />
         </SelectTrigger>
@@ -46,8 +59,8 @@ const SortBar = ({ sortBy, order }: { sortBy: SortBy, order: Order }) => {
           )}
         />
       </Button>
-    </div >
-  )
-}
+    </div>
+  );
+};
 
 export default SortBar;
