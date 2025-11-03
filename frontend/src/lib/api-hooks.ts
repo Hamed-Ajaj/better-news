@@ -14,7 +14,14 @@ import {
   SuccessResponse,
 } from "@/shared/types";
 
-import { GetPostsSuccess, postComment, upvoteComment, upvotePost } from "./api";
+import {
+  deleteComment,
+  deletePost,
+  GetPostsSuccess,
+  postComment,
+  upvoteComment,
+  upvotePost,
+} from "./api";
 
 const updatePostUpvote = (draft: Post) => {
   draft.points += draft.isUpvoted ? -1 : +1;
@@ -212,7 +219,10 @@ export const useCreateComment = () => {
         : ["comments", "post", id];
 
       let prevData;
-      const user = queryClient.getQueryData<string | null>(["user"]);
+      const user = queryClient.getQueryData<{
+        username: string;
+        id: string;
+      } | null>(["user"]);
       queryClient.setQueriesData<InfiniteData<PaginatedResponse<Comment[]>>>(
         { queryKey: commentQueryKey },
         produce((oldData) => {
@@ -228,7 +238,7 @@ export const useCreateComment = () => {
             createdAt: new Date().toISOString(),
             postId: id,
             author: {
-              username: user ?? "",
+              username: user?.username ?? "",
               id: "",
             },
             id: -1,
@@ -275,6 +285,30 @@ export const useCreateComment = () => {
         : ["comments", "post", id];
       toast.error("Failed to create comment");
       queryClient.invalidateQueries({ queryKey });
+    },
+  });
+};
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      // Revalidate (refetch) the posts query
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+};
+
+export const useDeleteComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteComment,
+    onSuccess: () => {
+      // Revalidate (refetch) the comments query
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
 };

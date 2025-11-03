@@ -68,7 +68,7 @@ export const getUser = async () => {
   const res = await client.auth.user.$get();
   if (res.ok) {
     const data = await res.json();
-    return data.data.username;
+    return data.data;
   }
   return null;
 };
@@ -101,9 +101,8 @@ export const getPosts = async ({
       site: pagination.site,
     },
   });
-
   if (!res.ok) {
-    const data = (await res.json) as ErrorResponse;
+    const data = (await res.json()) as unknown as ErrorResponse;
     throw new Error(data.error);
   }
   const data = await res.json();
@@ -270,4 +269,32 @@ export const postComment = async (
       isFormError: false,
     } as ErrorResponse;
   }
+};
+
+export const deletePost = async (id: number) => {
+  const res = await client.posts[":id"].$delete({
+    param: {
+      id: id.toString(),
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    return data;
+  }
+  const data = (await res.json()) as ErrorResponse;
+  throw new Error(data.error);
+};
+
+export const deleteComment = async (id: number) => {
+  const res = await client.comments[":id"].$delete({
+    param: {
+      id: id.toString(),
+    },
+  });
+  if (res.ok) {
+    const data = await res.json();
+    return data;
+  }
+  const data = (await res.json()) as ErrorResponse;
+  throw new Error(data.error);
 };

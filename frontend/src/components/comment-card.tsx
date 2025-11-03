@@ -11,11 +11,12 @@ import {
   MessageSquareIcon,
   MinusIcon,
   PlusIcon,
+  TrashIcon,
 } from "lucide-react";
 
 import { Comment } from "@/shared/types";
 import { getCommentComments, userQueryOptions } from "@/lib/api";
-import { useUpvoteComment } from "@/lib/api-hooks";
+import { useDeleteComment, useUpvoteComment } from "@/lib/api-hooks";
 import { cn, relativeTime } from "@/lib/utils";
 
 import CommentForm from "./comment-form";
@@ -40,6 +41,7 @@ const CommentCard = ({
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { data: user } = useQuery(userQueryOptions());
+  console.log(user);
   const {
     data: comments,
     hasNextPage,
@@ -72,12 +74,14 @@ const CommentCard = ({
       return lastPageParam + 1;
     },
   });
+  const deleteCommentMutation = useDeleteComment();
   const isReplying = activeReplyId === comment.id;
   const loadFirstPage =
     comments?.pages[0].data?.length === 0 && comment.commentCount > 0;
 
   const isUpvoted = comment.commentUpvotes.length > 0;
   const isDraft = comment.id === -1;
+  console.log(hasNextPage || loadFirstPage);
   return (
     <div
       className={cn(
@@ -123,15 +127,30 @@ const CommentCard = ({
             <p className="mb-2 text-sm text-foreground">{comment.content}</p>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               {user && (
-                <button
-                  className="flex items-center space-x-1 hover:text-foreground"
-                  onClick={() =>
-                    setActiveReplyId(isReplying ? null : comment.id)
-                  }
-                >
-                  <MessageSquareIcon size={12} />
-                  <span>reply</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    className="flex items-center space-x-1 hover:text-foreground"
+                    onClick={() =>
+                      setActiveReplyId(isReplying ? null : comment.id)
+                    }
+                  >
+                    <MessageSquareIcon size={12} />
+                    <span>reply</span>
+                  </button>
+
+                  {user?.id === comment.author.id && (
+                    <>
+                      <span className="text-muted-foreground">·</span>
+                      <button
+                        className="flex items-center space-x-1 hover:text-foreground"
+                        onClick={() => deleteCommentMutation.mutate(comment.id)}
+                      >
+                        <TrashIcon size={12} />
+                        <span>delete</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
             </div>
             {isReplying && (
@@ -150,7 +169,7 @@ const CommentCard = ({
         comments &&
         comments.pages.map((page, index) => {
           const isLastPage = index === comments.pages.length - 1;
-          return page.data.map((reply, index) => (
+          return page.data.map((reply: Comment, index: number) => (
             <CommentCard
               key={reply.id}
               comment={reply}

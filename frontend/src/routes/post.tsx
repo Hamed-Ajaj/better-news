@@ -12,6 +12,7 @@ import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 import { ChevronDownIcon } from "lucide-react";
 import { z } from "zod";
 
+import { Comment } from "@/shared/types";
 import { getComments, getPost, userQueryOptions } from "@/lib/api";
 import { useUpvoteComment, useUpvotePost } from "@/lib/api-hooks";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,43 +108,45 @@ function RouteComponent() {
         {comments && comments.pages[0].data.length > 0 && (
           <SortBar sortBy={sortBy} order={order} />
         )}
-        <Card>
-          <CardContent className="">
-            {comments.pages.map((page) =>
-              page.data.map((comment, index) => (
-                <CommentCard
-                  key={comment.id}
-                  comment={comment}
-                  depth={0}
-                  activeReplyId={activeReplyId}
-                  setActiveReplyId={setActiveReplyId}
-                  isLatest={index === page.data.length - 1}
-                  toggleUpvote={upvoteComment.mutate}
-                />
-              )),
-            )}
-            {hasNextPage && (
-              <div className="mt-2">
-                <button
-                  className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => {
-                    fetchNextPage();
-                  }}
-                  disabled={!hasNextPage || isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <span>Loading...</span>
-                  ) : (
-                    <>
-                      <ChevronDownIcon size={12} />
-                      <span>More comments</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {comments && comments.pages[0].data.length > 0 && (
+          <Card>
+            <CardContent>
+              {comments.pages.map((page) =>
+                page.data.map((comment: Comment, index: number) => (
+                  <CommentCard
+                    key={comment.id}
+                    comment={comment}
+                    depth={0}
+                    activeReplyId={activeReplyId}
+                    setActiveReplyId={setActiveReplyId}
+                    isLatest={index === page.data.length - 1}
+                    toggleUpvote={upvoteComment.mutate}
+                  />
+                )),
+              )}
+              {hasNextPage && (
+                <div className="mt-2">
+                  <button
+                    className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      fetchNextPage();
+                    }}
+                    disabled={!hasNextPage || isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? (
+                      <span>Loading...</span>
+                    ) : (
+                      <>
+                        <ChevronDownIcon size={12} />
+                        <span>More comments</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

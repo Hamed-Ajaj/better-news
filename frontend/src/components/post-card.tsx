@@ -1,13 +1,15 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
-import { ChevronUpIcon } from "lucide-react";
+import { ChevronUpIcon, TrashIcon } from "lucide-react";
 
 import { Post } from "@/shared/types";
 import { userQueryOptions } from "@/lib/api";
+import { useDeletePost } from "@/lib/api-hooks";
 import { cn, relativeTime } from "@/lib/utils";
 
 import { badgeVariants } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Card, CardContent, CardTitle } from "./ui/card";
 
 const PostCard = ({
@@ -18,6 +20,8 @@ const PostCard = ({
   onUpvote?: (id: number) => void;
 }) => {
   const { data: user } = useQuery(userQueryOptions());
+  const navigate = useNavigate();
+  const deletePostMutation = useDeletePost();
   return (
     <Card className="flex flex-row items-start justify-start pt-3">
       <button
@@ -36,7 +40,7 @@ const PostCard = ({
       <div className="flex grow flex-col justify-between">
         <div className="flex items-start px-3 py-0">
           <div className="flex grow flex-wrap items-center gap-x-2 ">
-            <CardTitle className="text-xl font-medium">
+            <CardTitle className="flex justify-between items-center text-xl w-full font-medium">
               {post.url ? (
                 <a
                   href={post.url}
@@ -52,6 +56,21 @@ const PostCard = ({
                 >
                   {post.title}
                 </Link>
+              )}
+
+              {user?.id === post.author.id && (
+                <Button
+                  onClick={() => {
+                    deletePostMutation.mutate(post.id);
+                    navigate({
+                      to: "/",
+                    });
+                  }}
+                  variant="link"
+                  className="cursor-pointer text-gray-500 text-xs hover:underline hover:text-primary"
+                >
+                  delete
+                </Button>
               )}
             </CardTitle>
             {post.url ? (

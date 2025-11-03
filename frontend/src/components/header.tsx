@@ -49,7 +49,7 @@ const Header = () => {
         <div className="hidden items-center space-x-4 md:flex">
           {user ? (
             <>
-              <span>{user}</span>
+              <span>{user.username}</span>
               <Button
                 asChild
                 size="sm"
@@ -113,7 +113,7 @@ const Header = () => {
               </Link>
               {user ? (
                 <>
-                  <span>user: {user}</span>
+                  <span>user: {user.username}</span>
                   <Button
                     asChild
                     size="sm"

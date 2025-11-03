@@ -116,6 +116,7 @@ function RouteComponent() {
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
+                      type="password"
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     <FieldInfo field={field} />
