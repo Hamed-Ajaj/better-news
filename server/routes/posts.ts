@@ -266,8 +266,6 @@ export const postsRouter = new Hono<Context>()
       const sortOrder =
         order === "desc" ? desc(sortByColumn) : asc(sortByColumn);
 
-      console.log(sortBy, order);
-
       const [count] = await db
         .select({ count: countDistinct(commentsTable.id) })
         .from(commentsTable)
@@ -389,6 +387,40 @@ export const postsRouter = new Hono<Context>()
           success: true,
           message: "Post fetched successfully",
           data: post as Post,
+        },
+        200,
+      );
+    },
+  )
+  .delete(
+    "/:id",
+    loggedIn,
+    zValidator("param", z.object({ id: z.coerce.number() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const user = c.get("user")!;
+      const post = await db.transaction(async (tx) => {
+        const [existingPost] = await tx
+          .select()
+          .from(postsTable)
+          .where(eq(postsTable.id, id))
+          .limit(1);
+        if (!existingPost) {
+          throw new HTTPException(404, { message: "Post not found" });
+        }
+        if (existingPost.userId !== user.id) {
+          throw new HTTPException(403, { message: "Forbidden" });
+        }
+
+        await tx.delete(postsTable).where(eq(postsTable.id, id));
+
+        return existingPost;
+      });
+
+      return c.json<SuccessResponse>(
+        {
+          success: true,
+          message: "Post deleted successfully",
         },
         200,
       );

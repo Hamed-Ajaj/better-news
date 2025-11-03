@@ -91,19 +91,22 @@ export const commentsRouter = new Hono<Context>()
             commentCount: commentsTable.commentCount,
           });
       });
-      return c.json<SuccessResponse<Comment>>({
-        success: true,
-        message: "Comment Created",
-        data: {
-          ...comment,
-          childComments: [],
-          commentUpvotes: [],
-          author: {
-            username: user.username,
-            id: user.id,
-          },
-        } as Comment,
-      });
+      return c.json<SuccessResponse<Comment>>(
+        {
+          success: true,
+          message: "Comment Created",
+          data: {
+            ...comment,
+            childComments: [],
+            commentUpvotes: [],
+            author: {
+              username: user.username,
+              id: user.id,
+            },
+          } as Comment,
+        },
+        201,
+      );
     },
   )
   .post(
@@ -167,6 +170,44 @@ export const commentsRouter = new Hono<Context>()
       );
     },
   )
+  .delete(
+    "/:id",
+    zValidator("param", z.object({ id: z.coerce.number() })),
+    async (c) => {
+      const user = c.get("user");
+      const { id } = c.req.valid("param");
+      const comment = await db.transaction(async (tx) => {
+        const [existingComment] = await tx
+          .select()
+          .from(commentsTable)
+          .where(eq(commentsTable.id, id))
+          .limit(1);
+
+        if (!existingComment) {
+          throw new HTTPException(404, { message: "Comment not found" });
+        }
+
+        if (existingComment.userId !== user?.id) {
+          throw new HTTPException(403, { message: "Forbidden" });
+        }
+
+        await tx
+          .delete(commentsTable)
+          .where(eq(commentsTable.id, existingComment.id));
+
+        return existingComment;
+      });
+
+      return c.json<SuccessResponse>(
+        {
+          success: true,
+          message: "Comment deleted",
+          // data: comment,
+        },
+        200,
+      );
+    },
+  )
   .get(
     "/:id/comments",
     zValidator("param", z.object({ id: z.coerce.number() })),
@@ -214,14 +255,17 @@ export const commentsRouter = new Hono<Context>()
         },
       });
 
-      return c.json<PaginatedResponse<Comment[]>>({
-        success: true,
-        message: "Comments fetched",
-        data: comments as Comment[],
-        pagination: {
-          page,
-          totalPages: Math.ceil(count.count / limit) as number,
+      return c.json<PaginatedResponse<Comment[]>>(
+        {
+          success: true,
+          message: "Comments fetched",
+          data: comments as Comment[],
+          pagination: {
+            page,
+            totalPages: Math.ceil(count.count / limit) as number,
+          },
         },
-      });
+        200,
+      );
     },
   );

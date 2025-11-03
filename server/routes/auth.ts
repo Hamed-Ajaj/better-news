@@ -100,9 +100,9 @@ export const authRouter = new Hono<Context>()
   })
   .get("/user", loggedIn, async (c) => {
     const user = c.get("user")!;
-    return c.json<SuccessResponse<{ username: string }>>({
+    return c.json<SuccessResponse<{ username: string; id: string }>>({
       success: true,
       message: "User fetched",
-      data: { username: user.username },
+      data: { username: user.username, id: user.id },
     });
   });
