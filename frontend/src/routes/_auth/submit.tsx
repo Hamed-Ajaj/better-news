@@ -41,7 +41,7 @@ function RouteComponent() {
     },
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: createPostSchema,
+      onChange: createPostSchema,
     },
     onSubmit: async ({ value }) => {
       const res = await postSubmit(value.title, value.content, value.url);
@@ -141,7 +141,7 @@ function RouteComponent() {
                 )}
               />
 
-              <form.Subscribe
+              {/*<form.Subscribe
                 selector={(state) => [state.errorMap]}
                 children={([errorMap]) =>
                   errorMap.onSubmit ? (
@@ -150,7 +150,7 @@ function RouteComponent() {
                     </p>
                   ) : null
                 }
-              />
+              />*/}
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                 children={([canSubmit, isSubmitting]) => (

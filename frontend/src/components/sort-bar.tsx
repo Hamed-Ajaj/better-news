@@ -30,7 +30,7 @@ const SortBar = ({ sortBy, order }: { sortBy: SortBy; order: Order }) => {
           })
         }
       >
-        <SelectTrigger>
+        <SelectTrigger className="bg-white">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

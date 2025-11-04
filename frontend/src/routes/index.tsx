@@ -74,7 +74,7 @@ function HomeComponent() {
     );
   const upvoteMutation = useUpvotePost();
   return (
-    <div className="p-4 mx-auto max-w-3xl">
+    <div className="p-2 md:p-4 mx-auto max-w-3xl">
       <h1 className="text-2xl font-bold mb-6 text-foreground">Submissions</h1>
       <SortBar sortBy={sortBy} order={order} />
       <div className="space-y-4">
